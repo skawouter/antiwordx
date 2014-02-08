@@ -1,0 +1,70 @@
+--- Makefile.Linux	2014-02-08 22:29:40.955687324 +0100
++++ Makefile.Linux.Debug	2004-12-03 22:11:46.000000000 +0100
+@@ -10,7 +10,7 @@
+ INSTALL_DATA	= $(INSTALL)
+ 
+ # must be equal to DEBUG or NDEBUG
+-DB	= NDEBUG
++DB	= DEBUG
+ # Optimization: -O<n> or debugging: -g
+ OPT	= -O2
+ 
+@@ -21,16 +21,17 @@
+ 
+ OBJS	=\
+ 	main_u.o asc85enc.o blocklist.o chartrans.o datalist.o depot.o\
+-	doclist.o fail.o finddata.o findtext.o fmt_text.o fontlist.o\
+-	fonts.o fonts_u.o hdrftrlist.o \
+-	listlist.o misc.o notes.o options.o out2window.o output.o \
+-	pictlist.o prop0.o prop2.o prop6.o prop8.o\
++	dib2eps.o doclist.o fail.o finddata.o findtext.o fmt_text.o fontlist.o\
++	fonts.o fonts_u.o hdrftrlist.o imgexam.o imgtrans.o jpeg2eps.o\
++	listlist.o misc.o notes.o options.o out2window.o output.o pdf.o\
++	pictlist.o png2eps.o postscript.o prop0.o prop2.o prop6.o prop8.o\
+ 	properties.o propmod.o rowlist.o sectlist.o stylelist.o stylesheet.o\
+ 	summary.o tabstop.o text.o unix.o utf8.o word2text.o worddos.o\
+-	wordlib.o wordmac.o wordole.o wordwin.o xmalloc.o
++	wordlib.o wordmac.o wordole.o wordwin.o xmalloc.o xml.o
+ 
+ PROGS =\
+-	antiword
++	antiword\
++	kantiword
+ 
+ LOCAL_INSTALL_DIR = $(HOME)/bin
+ LOCAL_RESOURCES_DIR = $(HOME)/.antiword
+@@ -44,7 +45,7 @@
+ 	mkdir -p $(LOCAL_INSTALL_DIR)
+ 	cp -pf $(PROGS) $(LOCAL_INSTALL_DIR)
+ 	mkdir -p $(LOCAL_RESOURCES_DIR)
+-	cp -pf Resources/* $(LOCAL_RESOURCES_DIR)
++#	cp -pf Resources/* $(LOCAL_RESOURCES_DIR)
+ 
+ # NOTE: you might have to be root to do this
+ global_install:	all
+@@ -75,14 +76,22 @@
+ 	$(LD) $(LDFLAGS) $(OBJS) $(LDLIBS) -o $@
+ 	@chmod 750 $@
+ 
++kantiword:	Unix-only/KDE3-only/kantiword.sh
++	@rm -f $@
++	echo "#!/bin/bash" > $@
++	cat $? >> $@
++	@chmod 750 $@
++
+ .c.o:
+ 	$(CC) $(CFLAGS) -c $<
+ 
+ main_u.o:	version.h
++postscript.o:	version.h
++pdf.o:		version.h
+ fonts_u.o:	fontinfo.h
+ 
+-fontinfo.h:	fontinfo/fontinfo.h
++fontinfo.h:	Unix-only/fontinfo.h
+ 	cp -rp $? $@
+ 
+-fontinfo/fontinfo.h:	fontinfo/fontinfo.pl
+-	fontinfo/fontinfo.pl > fontinfo/fontinfo.h
++Unix-only/fontinfo.h:	Unix-only/fontinfo.pl
++	Unix-only/fontinfo.pl > Unix-only/fontinfo.h
