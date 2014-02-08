@@ -53,10 +53,6 @@ vPrintFMT(FILE *pFile,
 	}
     DBG_MSG("print fmt2");
 
-	if (eEncoding == encoding_utf_8) {
-		fprintf(pFile, "%.*s", (int)tStringLength, szString);
-		return;
-	}
 
 	if (ucNbsp == 0) {
 		ucNbsp = ucGetNbspCharacter();
@@ -84,26 +80,36 @@ vPrintFMT(FILE *pFile,
 		return;
 	}
 
+    DBG_MSG("print fmt3");
 	/* 2: Start the *bold*, /italic/ and _underline_ */
+    DBG_MSG("fontstyle");
+    DBG_DEC(usFontstyle);
 	if (bIsBold(usFontstyle)) {
+        DBG_MSG("BOLD");
 		(void)putc('*', pFile);
 	}
 	if (bIsItalic(usFontstyle)) {
+        DBG_MSG("Italic");
 		(void)putc('/', pFile);
 	}
 	if (bIsUnderline(usFontstyle)) {
+        DBG_MSG("Underline");
 		(void)putc('_', pFile);
 	}
 
-	/* 3: The text itself */
-	while (pucByte <= pucNonSpace) {
-		if (*pucByte == ucNbsp) {
-			(void)putc(' ', pFile);
-		} else {
-			(void)putc((char)*pucByte, pFile);
-		}
-		pucByte++;
-	}
+	if (eEncoding == encoding_utf_8) {
+		fprintf(pFile, "%.*s", (int)tStringLength, szString);
+	} else {
+        /* 3: The text itself */
+        while (pucByte <= pucNonSpace) {
+            if (*pucByte == ucNbsp) {
+                (void)putc(' ', pFile);
+            } else {
+                (void)putc((char)*pucByte, pFile);
+            }
+            pucByte++;
+        }
+    }
 
 	/* 4: End the *bold*, /italic/ and _underline_ */
 	if (bIsUnderline(usFontstyle)) {
